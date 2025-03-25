@@ -1,98 +1,151 @@
 import turtle
-import time
 import datetime
 import math
+import random
 
+turtle.setup(500, 500)
+turtle.bgcolor("black")
+turtle.tracer(0)
 
-class Digit:
+CLOCK_RADIUS = 100
+NUM_STARS = 50
 
-    def __init__(self, x, y, number):
-        self.x = x
-        self.y = y
-        self.number = number
+def is_outside_circle(x, y, radius):
+    return math.sqrt(x ** 2 + y ** 2) > radius + 10
 
-    def draw(self):
-        turtle.penup()
-        turtle.goto(self.x, self.y)
-        turtle.pendown()
-        turtle.write(self.number, align="center", font=("Arial", 12, "bold"))
+stars = []
+for _ in range(NUM_STARS):
+    star = turtle.Turtle()
+    star.hideturtle()
+    star.penup()
+    star.speed(0)
+
+    while True:
+        x, y = random.randint(-200, 200), random.randint(-200, 200)
+        if is_outside_circle(x, y, CLOCK_RADIUS):
+            star.goto(x, y)
+            break
+
+    stars.append(star)
+
+def twinkle_stars():
+    for star in stars:
+        star.clear()
+        while True:
+            x, y = random.randint(-200, 200), random.randint(-200, 200)
+            if is_outside_circle(x, y, CLOCK_RADIUS):
+                star.goto(x, y)
+                break
+        star.dot(random.randint(2, 5), "white")
+
+    turtle.update()
+    turtle.ontimer(twinkle_stars, 500)
 
 class ClockFace:
-    def init(self, radius=100):
+    def __init__(self, radius=CLOCK_RADIUS):
         self.radius = radius
 
     def draw(self):
         turtle.penup()
         turtle.goto(0, -self.radius)
         turtle.pendown()
+        turtle.pencolor("white")
         turtle.circle(self.radius)
-        for i in range(1, 13):
-            angle = i * 30
-            x = self.radius * 0.85 * math.cos(angle * 3.14159 / 180)
-            y = self.radius * 0.85 * math.sin(angle * 3.14159 / 180)
-            Digit(x, y, i).draw()
 
+        for i in range(12):
+            angle = 90 - i * 30
+            x = self.radius * 0.85 * math.cos(math.radians(angle))
+            y = self.radius * 0.85 * math.sin(math.radians(angle))
+            turtle.penup()
+            turtle.goto(x, y - 5)
+            turtle.pendown()
+            turtle.pencolor("white")
+            turtle.write(i if i != 0 else 12, align="center", font=("Arial", 12, "bold"))
 
+        for i in range(60):
+            angle = 90 - i * 6
+            x1 = self.radius * 0.95 * math.cos(math.radians(angle))
+            y1 = self.radius * 0.95 * math.sin(math.radians(angle))
+            x2 = self.radius * math.cos(math.radians(angle))
+            y2 = self.radius * math.sin(math.radians(angle))
+            turtle.penup()
+            turtle.goto(x1, y1)
+            turtle.pendown()
+            if i % 5 == 0:
+                turtle.pensize(2)
+            else:
+                turtle.pensize(1)
+            turtle.goto(x2, y2)
 class Hand:
-
     def __init__(self, length, width, color):
         self.length = length
         self.width = width
         self.color = color
+        self.hand_turtle = turtle.Turtle()
+        self.hand_turtle.hideturtle()
+        self.hand_turtle.speed(0)
+        self.hand_turtle.pensize(self.width)
+        self.hand_turtle.pencolor(self.color)
 
     def draw(self, angle):
-        turtle.penup()
-        turtle.goto(0, 0)
-        turtle.setheading(angle)
-        turtle.pendown()
-        turtle.pensize(self.width)
-        turtle.pencolor(self.color)
-        turtle.forward(self.length)
-        turtle.penup()
-        turtle.goto(0, 0)
-        turtle.pendown()
+        self.hand_turtle.clear()
+        self.hand_turtle.penup()
+        self.hand_turtle.goto(0, 0)
+        self.hand_turtle.setheading(90 - angle)
+        self.hand_turtle.pendown()
+        self.hand_turtle.forward(self.length)
 
-
-class Watch:
-    def update_time(self):
-        pass
-
-
-class AnalogWatch(Watch):
-    def init(self):
+class AnalogWatch:
+    def __init__(self):
         self.face = ClockFace()
-        self.hour_hand = Hand(50, 4, "black")
-        self.minute_hand = Hand(70, 3, "blue")
+        self.hour_hand = Hand(50, 4, "white")
+        self.minute_hand = Hand(70, 3, "cyan")
         self.second_hand = Hand(90, 2, "red")
 
-    def update_time(self):
-        turtle.tracer(0)
-        turtle.clear()
+    def draw_face(self):
         self.face.draw()
+
+    def update_time(self):
         now = datetime.datetime.now()
-        self.hour_hand.draw((now.hour % 12) * 30 + now.minute * 0.5)
-        self.minute_hand.draw(now.minute * 6)
-        self.second_hand.draw(now.second * 6)
+        hour_angle = (now.hour % 12) * 30 + now.minute * 0.5
+        minute_angle = now.minute * 6 + now.second * 0.1
+        second_angle = now.second * 6
+
+        self.hour_hand.draw(hour_angle)
+        self.minute_hand.draw(minute_angle)
+        self.second_hand.draw(second_angle)
+
         turtle.update()
-        turtle.ontimer(self.update_time, 1000)
+        turtle.ontimer(self.update_time, 50)
 
-
-class DigitalWatch(Watch):
-
+class DigitalWatch:
     def __init__(self, format_24=True):
         self.format_24 = format_24
+        self.text_turtle = turtle.Turtle()
+        self.text_turtle.hideturtle()
+        self.text_turtle.speed(0)
 
     def update_time(self):
-        turtle.tracer(0)
-        turtle.penup()
-        turtle.goto(0, -130)
-        turtle.pendown()
+        self.text_turtle.clear()
+        self.text_turtle.penup()
+        self.text_turtle.goto(0, -130)
+        self.text_turtle.pencolor("white")
+        self.text_turtle.pendown()
         now = datetime.datetime.now()
-        if not self.format_24:
-            time_str = now.strftime("%I:%M:%S %p")
-        else:
-            time_str = now.strftime("%H:%M:%S")
-        turtle.write(time_str, align="center", font=("Arial", 16, "bold"))
-        turtle.update()
-        turtle.ontimer(self.update_time, 1000)
+        time_str = now.strftime("%H:%M:%S") if self.format_24 else now.strftime("%I:%M:%S %p")
+        self.text_turtle.write(time_str, align="center", font=("Arial", 16, "bold"))
 
+        turtle.update()
+        turtle.ontimer(self.update_time, 500)
+
+if __name__ == "__main__":
+    analog = AnalogWatch()
+    digital = DigitalWatch(format_24=True)
+
+    analog.draw_face()
+    analog.update_time()
+    digital.update_time()
+
+    twinkle_stars()
+
+    turtle.done()
