@@ -1,5 +1,4 @@
 import turtle
-import time
 import datetime
 import math
 
@@ -60,6 +59,7 @@ class Watch:
 
 class AnalogWatch(Watch):
     def init(self):
+        super().__init__()
         self.face = ClockFace()
         self.hour_hand = Hand(50, 4, "black")
         self.minute_hand = Hand(70, 3, "blue")
@@ -80,6 +80,7 @@ class AnalogWatch(Watch):
 class DigitalWatch(Watch):
 
     def __init__(self, format_24=True):
+        super().__init__()
         self.format_24 = format_24
 
     def update_time(self):
@@ -96,3 +97,12 @@ class DigitalWatch(Watch):
         turtle.update()
         turtle.ontimer(self.update_time, 1000)
 
+
+if __name__ == "__main__":
+    turtle.speed(0)
+    turtle.hideturtle()
+    analog = AnalogWatch()
+    digital = DigitalWatch(format_24=True)
+    analog.update_time()
+    digital.update_time()
+    turtle.done()
