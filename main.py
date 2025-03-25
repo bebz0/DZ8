@@ -17,20 +17,20 @@ class Digit:
         turtle.pendown()
         turtle.write(self.number, align="center", font=("Arial", 12, "bold"))
 
-    class ClockFace:
-        def init(self, radius=100):
-            self.radius = radius
+class ClockFace:
+    def init(self, radius=100):
+        self.radius = radius
 
-        def draw(self):
-            turtle.penup()
-            turtle.goto(0, -self.radius)
-            turtle.pendown()
-            turtle.circle(self.radius)
-            for i in range(1, 13):
-                angle = i * 30
-                x = self.radius * 0.85 * math.cos(angle * 3.14159 / 180)
-                y = self.radius * 0.85 * math.sin(angle * 3.14159 / 180)
-                Digit(x, y, i).draw()
+    def draw(self):
+        turtle.penup()
+        turtle.goto(0, -self.radius)
+        turtle.pendown()
+        turtle.circle(self.radius)
+        for i in range(1, 13):
+            angle = i * 30
+            x = self.radius * 0.85 * math.cos(angle * 3.14159 / 180)
+            y = self.radius * 0.85 * math.sin(angle * 3.14159 / 180)
+            Digit(x, y, i).draw()
 
 
 class Hand:
@@ -51,3 +51,25 @@ class Hand:
         turtle.penup()
         turtle.goto(0, 0)
         turtle.pendown()
+
+
+class Watch:
+    def update_time(self):
+        pass
+
+
+class AnalogWatch(Watch):
+    def init(self):
+        self.face = ClockFace()
+        self.hour_hand = Hand(50, 4, "black")
+        self.minute_hand = Hand(70, 3, "blue")
+        self.second_hand = Hand(90, 2, "red")
+
+    def update_time(self):
+        self.face.draw()
+        now = datetime.datetime.now()
+        self.hour_hand.draw((now.hour % 12) * 30 + now.minute * 0.5)
+        self.minute_hand.draw(now.minute * 6)
+        self.second_hand.draw(now.second * 6)
+        turtle.update()
+        turtle.ontimer(self.update_time, 1000)
