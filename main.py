@@ -75,3 +75,24 @@ class AnalogWatch(Watch):
         self.second_hand.draw(now.second * 6)
         turtle.update()
         turtle.ontimer(self.update_time, 1000)
+
+
+class DigitalWatch(Watch):
+
+    def __init__(self, format_24=True):
+        self.format_24 = format_24
+
+    def update_time(self):
+        turtle.tracer(0)
+        turtle.penup()
+        turtle.goto(0, -130)
+        turtle.pendown()
+        now = datetime.datetime.now()
+        if not self.format_24:
+            time_str = now.strftime("%I:%M:%S %p")
+        else:
+            time_str = now.strftime("%H:%M:%S")
+        turtle.write(time_str, align="center", font=("Arial", 16, "bold"))
+        turtle.update()
+        turtle.ontimer(self.update_time, 1000)
+
