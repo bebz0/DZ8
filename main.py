@@ -66,6 +66,8 @@ class AnalogWatch(Watch):
         self.second_hand = Hand(90, 2, "red")
 
     def update_time(self):
+        turtle.tracer(0)
+        turtle.clear()
         self.face.draw()
         now = datetime.datetime.now()
         self.hour_hand.draw((now.hour % 12) * 30 + now.minute * 0.5)
